@@ -1,24 +1,20 @@
 import p5 from 'p5';
-import createMaze from './maze';
+import generateMaze from './mazeGenerator';
+import mazeRenderer from './mazeRenderer';
 
-const game = new p5(function (g) {
-    
-    const width = 800;
-    const height = 800;
-    const maze = createMaze({
-        density: 10,
-        dimension: width,
-        game: g
-    });
+const engine = new p5(e => {
 
-    g.setup = function () {
-        g.createCanvas(width, height)
-         .background('#444');
-        maze();
-    }
+	const width = 800;
+	const height = 800;
+	const renderMaze = mazeRenderer(
+		e, generateMaze(10));
 
-    g.draw = function () {
+	e.setup = function () {
+		e.createCanvas(width, height)
+			.background('#444');
+		renderMaze(width, height);
+	}
 
-    }
+	e.draw = function () {}
 
 });
