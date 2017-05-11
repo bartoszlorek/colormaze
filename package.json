@@ -1,0 +1,32 @@
+{
+  "name": "colormaze",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack -p --config webpack.config.js",
+    "start": "webpack --progress --colors --watch",
+    "test": "jest",
+    "test-watch": "npm test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ubery/colormaze.git"
+  },
+  "author": "Bartosz Lorek",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ubery/colormaze/issues"
+  },
+  "homepage": "https://github.com/ubery/colormaze#readme",
+  "dependencies": {
+    "p5": "^0.5.9"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "jest-cli": "^20.0.0",
+    "webpack": "^2.5.1"
+  }
+}
