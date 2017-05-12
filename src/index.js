@@ -1,20 +1,21 @@
 import p5 from 'p5';
-import generateMaze from './mazeGenerator';
-import mazeRenderer from './mazeRenderer';
+import generate from './maze/generate';
+import renderer from './maze/renderer';
 
-const engine = new p5(e => {
+const canvas = new p5(p => {
 
 	const width = 800;
 	const height = 800;
-	const renderMaze = mazeRenderer(
-		e, generateMaze(10));
 
-	e.setup = function () {
-		e.createCanvas(width, height)
+    const maze = generate(10);
+    const render = renderer(p, maze);
+
+	p.setup = function () {
+		p.createCanvas(width, height)
 			.background('#444');
-		renderMaze(width, height);
+		render(width, height);
 	}
 
-	e.draw = function () {}
+	p.draw = function () {}
 
 });
