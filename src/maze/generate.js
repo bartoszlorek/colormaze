@@ -1,4 +1,4 @@
-import { createGrid } from '../utils';
+import { createGrid } from '../utils/grid';
 import { sample } from 'lodash';
 
 export default generate;
