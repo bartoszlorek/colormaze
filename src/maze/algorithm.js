@@ -1,15 +1,12 @@
-import { createGrid } from '../utils/grid';
 import { sample } from 'lodash';
+import createGrid from '../utils/grid';
 
-export default generate;
-
-function generate(cols, rows) {
+export default function (cols, rows) {
     const stack = [];
     const grid = createGrid(cols, rows, (data) => {
         data.solved = false;
         data.walls = [1, 1, 1, 1];
     });
-
     let current = grid.cells[0],
         unsolved = grid.length - 1,
         next;
