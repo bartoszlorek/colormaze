@@ -21,7 +21,7 @@
   "homepage": "https://github.com/ubery/colormaze#readme",
   "dependencies": {
     "lodash": "^4.17.4",
-    "p5": "^0.5.9"
+    "paper": "^0.11.3"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
