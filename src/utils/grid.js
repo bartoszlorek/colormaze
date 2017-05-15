@@ -1,17 +1,39 @@
-import { forEach } from 'lodash';
+import { forEach, create } from 'lodash';
 
-export {
-    createGrid,
-    adjacentCells,
-    indexByPosition
+const proto = {
+    get: function(x, y) {
+        const { cells } = this;
+        if (y === undefined) {
+            return cells[x];
+        } else {
+            const { cols, rows } = this;
+            x = Math.floor(x);
+            y = Math.floor(y);
+            return cells[indexByPosition(cols, rows)(x, y)];
+        }
+    },
+    neighbors: function (x, y) {
+        if (typeof x === 'object') {
+            y = x.y;
+            x = x.x;
+        }
+        const { cells, cols, rows } = this;
+        return adjacent(cells, cols, rows, x, y);
+    },
+    each: function(callback) {
+        forEach(this.cells, callback);
+        return this;
+    }
 }
 
-function createGrid(_cols, _rows, callback) {
+export default function (_cols, _rows, callback) {
     const withCallback = typeof callback === 'function';
     const cols = _cols || 10;
     const rows = _rows || cols;
     const cells = [];
-    let data, x, y;
+    let idx = 0,
+        data,
+        x, y;
 
     for (y = 0; y < rows; y++) {
         for (x = 0; x < cols; x++) {
@@ -20,47 +42,40 @@ function createGrid(_cols, _rows, callback) {
                 y
             };
             if (withCallback) {
-                callback(data);
+                data = callback(data, idx) || data;
             }
             cells.push(data);
+            idx += 1;
         }
     }
-    const adjacent = adjacentCells(cells, cols, rows);
-    const grid = Object.create({
-        neighbors: cell => adjacent(cell.x, cell.y),
-        each: callback => forEach(cells, callback)
-    });
-
-    Object.assign(grid, {
+    const props = {
         length: cells.length,
         cells,
         cols,
         rows
-    });
-    return grid;
+    }
+    return create(proto, props);
 }
 
-function adjacentCells(cells, cols, rows) {
-    const index = indexByPosition( cols, rows);
-    return (x, y) => {
-        let result = [],
-            table = [
-                cells[index(x, y - 1)], // top
-                cells[index(x + 1, y)], // right
-                cells[index(x, y + 1)], // bottom
-                cells[index(x - 1, y)]  // left
-            ],
-            length = table.length,
-            i = 0;
+function adjacent(cells, cols, rows, x, y) {
+    const index = indexByPosition(cols, rows);
+    const result = [];
+    const table = [
+        cells[index(x, y - 1)], // top
+        cells[index(x + 1, y)], // right
+        cells[index(x, y + 1)], // bottom
+        cells[index(x - 1, y)]  // left
+    ];
+    const length = table.length;
+    let i = 0;
 
-        while (i < length) {
-            if (table[i]) {
-                result.push(table[i]);
-            }
-            i += 1;
+    while (i < length) {
+        if (table[i]) {
+            result.push(table[i]);
         }
-        return result;
+        i += 1;
     }
+    return result;
 }
 
 function indexByPosition(cols, rows) {
