@@ -5,30 +5,25 @@ import action from './action';
 
 const proto = {
     walk: function (dir) {
-        const vector = angleToPoint(this.rotation).multiply(dir);
-        const current = this.position;
-        const next = new Point(
-            current.x + this.speed * vector.x,
-            current.y + this.speed * vector.y
-        );
-        const cell = this.spec.grid.get(current.x, current.y);
-        const isEdgeX = Math.floor(current.x) !== Math.floor(next.x);
-        const isEdgeY = Math.floor(current.y) !== Math.floor(next.y);
-        const walls = cell.walls;
+        let vector = angleToPoint(this.rotation).multiply(dir),
+            currX = this.position.x,
+            currY = this.position.y,
+            nextX = currX + this.speed * vector.x,
+            nextY = currY + this.speed * vector.y,
+            cell = this.spec.grid.get(currX, currY),
+            walls = cell.walls;
 
-        if (isEdgeX) {
-            let xDiff = next.x > current.x;
-            if (xDiff && walls[1] || !xDiff && walls[3]) {
-                next.x = current.x;
-            }
+        let distX = axisDistance(cell.x, nextX),
+            distY = axisDistance(cell.y, nextY),
+            radius = .5;
+
+        if (distX > radius && walls[1] || distX < -radius && walls[3]) {
+            nextX = currX;
         }
-        if (isEdgeY) {
-            let yDiff = next.y > current.y;
-            if (yDiff && walls[2] || !yDiff && walls[0]) {
-                next.y = current.y;
-            }
+        if (distY > radius && walls[2] || distY < -radius && walls[0]) {
+            nextY = currY;
         }
-        this.position = next;
+        this.position.set(nextX, nextY);
         this.render();
     },
     turn: function (dir) {
@@ -37,7 +32,7 @@ const proto = {
         this.shape.rotate(angle);
     },
     render: function () {
-        const { grid, scale, offset } = this.spec;
+        const { scale, offset } = this.spec;
         this.shape.bringToFront();
         this.shape.position = this.position
             .multiply(scale)
@@ -51,8 +46,8 @@ export default function (spec) {
         position: new Point(.5, .5),
         rotation: 0,
         rotationSpeed: 5,
-        speed: 1/20,
-        radius: 10,
+        speed: 1 / 20,
+        radius: 1 / 2,
         shape: addShape(spec)
     });
 
@@ -78,4 +73,8 @@ function addShape(spec) {
     return new Group({
         children: [body, eye]
     });
+}
+
+function axisDistance(coord, pos) {
+    return pos - (coord + .5);
 }

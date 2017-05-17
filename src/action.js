@@ -1,7 +1,6 @@
 import { forEach, isArray } from 'lodash';
 import paper, { Key } from 'paper';
 
-const fps = 60/30;
 const events = {};
 let spins = false,
     names = [];

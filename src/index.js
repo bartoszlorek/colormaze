@@ -19,7 +19,7 @@ const spec = {
             this.width,
             this.height
         )
-    } 
+    }
 }
 
 paper.setup(app);
