@@ -7,22 +7,14 @@ export default function (cols, rows) {
         data.solved = false;
         data.walls = [1, 1, 1, 1];
     });
+    const getNext = getNextCell(grid);
     let current = grid.cells[0],
         unsolved = grid.length - 1,
         next;
 
-    const getNext = () => {
-        let result = grid
-            .neighbors(current)
-            .filter(cell => !cell.solved);
-        if (result.length > 0) {
-            return sample(result);
-        }
-    }
-
     while (unsolved) {
         current.solved = true;
-        next = getNext();
+        next = getNext(current);
 
         if (next) {
             next.solved = true;
@@ -36,6 +28,17 @@ export default function (cols, rows) {
         }
     }
     return grid;
+}
+
+function getNextCell(grid) {
+    return current => {
+        let result = grid
+            .neighbors(current.x, current.y)
+            .filter(cell => !cell.solved);
+        if (result.length > 0) {
+            return sample(result);
+        }
+    }
 }
 
 function removeWall(a, b) {
