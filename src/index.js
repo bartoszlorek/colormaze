@@ -2,7 +2,7 @@ import paper from 'paper';
 import createMaze from './maze/algorithm';
 import renderMaze from './maze/render';
 import createPlayer from './player';
-import { gridToScale } from './utils/units';
+import { gridToScale } from './utils/utils';
 import action from './action';
 
 const app = document.querySelector('#app');

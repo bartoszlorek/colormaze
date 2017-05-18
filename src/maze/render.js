@@ -1,6 +1,6 @@
 import { forEach } from 'lodash';
 import { Path } from 'paper';
-import { coordsToPoints } from '../utils/units';
+import { coordsToPoints } from '../utils/utils';
 
 export default function (spec) {
         const { grid, scale, offset } = spec;

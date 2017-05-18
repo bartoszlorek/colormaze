@@ -5,7 +5,10 @@ export {
     gridToScale,
     coordsToBounds,
     coordsToPoints,
-    angleToPoint
+    angleToPoint,
+    nonAbsDistance,
+    roundToPath,
+    midCell
 }
 
 function gridToScale(grid) {
@@ -50,4 +53,26 @@ function angleToPoint(angle) {
         Math.cos(angle),
         Math.sin(angle)
     )
+}
+
+function nonAbsDistance(from, to) {
+    return from - to;
+}
+
+function roundToPath(dist, min, max) {
+    if (min && dist < 0
+    ||  max && dist > 0) {
+        return 0;
+    }
+    return dist;
+}
+
+function midCell(x, y) {
+    if (y === undefined) {
+        return x + 0.5;
+    }
+    return [
+        x + 0.5,
+        y + 0.5
+    ]
 }

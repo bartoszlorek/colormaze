@@ -1,6 +1,6 @@
 import { create } from 'lodash';
 import { Path, Point, Group } from 'paper';
-import { angleToPoint } from './utils/units';
+import { angleToPoint, nonAbsDistance, roundToPath, midCell } from './utils/utils';
 import action from './action';
 
 const proto = {
@@ -10,24 +10,21 @@ const proto = {
             currY = this.position.y,
             nextX = currX + this.speed * vector.x,
             nextY = currY + this.speed * vector.y,
-            cell = this.spec.grid.get(currX, currY),
+            cell  = this.spec.grid.get(currX, currY),
+            cellX = midCell(cell.x),
+            cellY = midCell(cell.y),
+            distX = nonAbsDistance(nextX, cellX),
+            distY = nonAbsDistance(nextY, cellY),
             walls = cell.walls;
-
-        let distX = axisDistance(cell.x, nextX),
-            distY = axisDistance(cell.y, nextY),
-            radius = .5;
-
-        if (distX > radius && walls[1] || distX < -radius && walls[3]) {
-            nextX = currX;
-        }
-        if (distY > radius && walls[2] || distY < -radius && walls[0]) {
-            nextY = currY;
-        }
-        this.position.set(nextX, nextY);
+        this.position.set(
+            cellX + roundToPath(distX, walls[3], walls[1]),
+            cellY + roundToPath(distY, walls[0], walls[2]));
         this.render();
     },
     turn: function (dir) {
-        const angle = dir * this.rotationSpeed;
+        this.rotate(this.rotationSpeed * dir);
+    },
+    rotate: function (angle) {
         this.rotation += angle;
         this.shape.rotate(angle);
     },
@@ -41,40 +38,55 @@ const proto = {
 }
 
 export default function (spec) {
+    const { cols, rows, walls } = spec.grid;
+    const initX = Math.round(cols/2) - 1;
+    const initY = rows - 1;
+    const initCell = spec.grid.get(initX, initY);
+
     proto.spec = spec;
     const instance = create(proto, {
-        position: new Point(.5, .5),
+        position: new Point(midCell(initX, initY)),
         rotation: 0,
         rotationSpeed: 5,
         speed: 1 / 20,
         radius: 1 / 2,
         shape: addShape(spec)
     });
-
     action(['up', 'w'], () => instance.walk(1));
     action(['down', 's'], () => instance.walk(-1));
     action(['left', 'a'], () => instance.turn(-1));
     action(['right', 'd'], () => instance.turn(1));
+    instance.rotate(rotateToGo(initCell));
     return instance;
 }
 
 function addShape(spec) {
     const radius = spec.scale * .4;
     const body = new Path.Circle({
-        fillColor: '#88c242',
+        fillColor: '#2196f3',
         center: [0, 0],
         radius
     });
-    const eye = new Path.Circle({
-        fillColor: '#5c8628',
-        radius: radius * .3,
-        center: [radius * .3, 0]
-    })
+    const inner = radius - 4;
+    const marker = new Path.Arc({
+        from: [0, -inner],
+        through: [inner, 0],
+        to: [0, inner],
+        fillColor: '#fff',
+        closed: true
+    });
     return new Group({
-        children: [body, eye]
+        children: [body, marker]
     });
 }
 
-function axisDistance(coord, pos) {
-    return pos - (coord + .5);
+function rotateToGo(cell) {
+    const walls = cell.walls;
+    const length = walls.length;
+    for (let i = 0; i < length; i++) {
+        if (walls[i] === 0) {
+            return i * 90 - 90;
+        }
+    }
+    return 0;
 }
