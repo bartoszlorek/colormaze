@@ -17,7 +17,7 @@ function render(data, scale, offset) {
             new Path.Line({
                 from: points[i].add(offset),
                 to: (points[i + 1] || points[0]).add(offset),
-                strokeColor: '#2196f3',
+                strokeColor: '#fff',
                 strokeCap: 'square',
                 strokeWidth: 4
             });

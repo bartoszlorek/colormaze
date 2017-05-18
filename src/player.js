@@ -1,5 +1,5 @@
 import { create } from 'lodash';
-import { Path, Point, Group } from 'paper';
+import { Path, Point, CompoundPath } from 'paper';
 import { angleToPoint, nonAbsDistance, roundToPath, midCell } from './utils/utils';
 import action from './action';
 
@@ -63,20 +63,20 @@ export default function (spec) {
 function addShape(spec) {
     const radius = spec.scale * .4;
     const body = new Path.Circle({
-        fillColor: '#2196f3',
         center: [0, 0],
         radius
     });
     const inner = radius - 4;
     const marker = new Path.Arc({
         from: [0, -inner],
-        through: [inner, 0],
+        through: [-inner, 0],
         to: [0, inner],
-        fillColor: '#fff',
         closed: true
     });
-    return new Group({
-        children: [body, marker]
+    return new CompoundPath({
+        children: [body, marker],
+        fillRule: 'evenodd',
+        fillColor: '#fff',
     });
 }
 
