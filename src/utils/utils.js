@@ -8,7 +8,9 @@ export {
     angleToPoint,
     nonAbsDistance,
     roundToPath,
-    midCell
+    midCell,
+    normalizeDegrees,
+    mapRange
 }
 
 function gridToScale(grid) {
@@ -48,7 +50,7 @@ function coordsToPoints(x, y, scale) {
 }
 
 function angleToPoint(angle) {
-    angle = angle * Math.PI / 180;
+    angle = (360 - angle) * Math.PI / 180;
     return new Point(
         Math.cos(angle),
         Math.sin(angle)
@@ -75,4 +77,12 @@ function midCell(x, y) {
         x + 0.5,
         y + 0.5
     ]
+}
+
+function normalizeDegrees(angle) {
+    return (angle % 360 + 360) % 360;
+}
+
+function mapRange(value, inMin, inMax, outMin = 0, outMax = 1) {
+    return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }

@@ -1,7 +1,8 @@
 import { create } from 'lodash';
 import { Path, Point, CompoundPath } from 'paper';
-import { angleToPoint, nonAbsDistance, roundToPath, midCell } from './utils/utils';
+import { angleToPoint, nonAbsDistance, roundToPath, midCell, normalizeDegrees } from './utils/utils';
 import action from './action';
+import colors from './colors';
 
 const proto = {
     walk: function (dir) {
@@ -10,23 +11,28 @@ const proto = {
             currY = this.position.y,
             nextX = currX + this.speed * vector.x,
             nextY = currY + this.speed * vector.y,
-            cell  = this.spec.grid.get(currX, currY),
+            cell = this.spec.grid.get(currX, currY),
             cellX = midCell(cell.x),
             cellY = midCell(cell.y),
             distX = nonAbsDistance(nextX, cellX),
             distY = nonAbsDistance(nextY, cellY),
             walls = cell.walls;
-        this.position.set(
-            cellX + roundToPath(distX, walls[3], walls[1]),
-            cellY + roundToPath(distY, walls[0], walls[2]));
+
+        nextX = cellX + roundToPath(distX, walls[3], walls[1]);
+        nextY = cellY + roundToPath(distY, walls[0], walls[2]);
+
+        this.position.set(nextX, nextY);
+        this.cell = this.spec.grid.get(nextX, nextY);
         this.render();
+        colors(this.cell, this.rotation);
     },
     turn: function (dir) {
         this.rotate(this.rotationSpeed * dir);
     },
     rotate: function (angle) {
-        this.rotation += angle;
+        this.rotation = normalizeDegrees(this.rotation - angle);
         this.shape.rotate(angle);
+        colors(this.cell, this.rotation);
     },
     render: function () {
         const { scale, offset } = this.spec;
@@ -39,9 +45,8 @@ const proto = {
 
 export default function (spec) {
     const { cols, rows, walls } = spec.grid;
-    const initX = Math.round(cols/2) - 1;
+    const initX = Math.round(cols / 2) - 1;
     const initY = rows - 1;
-    const initCell = spec.grid.get(initX, initY);
 
     proto.spec = spec;
     const instance = create(proto, {
@@ -52,11 +57,14 @@ export default function (spec) {
         radius: 1 / 2,
         shape: addShape(spec)
     });
+
     action(['up', 'w'], () => instance.walk(1));
     action(['down', 's'], () => instance.walk(-1));
     action(['left', 'a'], () => instance.turn(-1));
     action(['right', 'd'], () => instance.turn(1));
-    instance.rotate(rotateToGo(initCell));
+
+    instance.cell = spec.grid.get(initX, initY);
+    instance.rotate(rotateToGo(instance.cell));
     return instance;
 }
 
@@ -73,10 +81,15 @@ function addShape(spec) {
         to: [0, inner],
         closed: true
     });
+    // const line = new Path.Rectangle({
+    //     point: [0, -1],
+    //     size: [100, 2]
+    // });
     return new CompoundPath({
         children: [body, marker],
         fillRule: 'evenodd',
         fillColor: '#fff',
+        pivot: new Point(0, 0)
     });
 }
 

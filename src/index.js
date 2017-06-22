@@ -6,7 +6,7 @@ import { gridToScale } from './utils/utils';
 import action from './action';
 
 const app = document.querySelector('#app');
-const grid = createMaze(10, 15);
+const grid = createMaze(2, 3);
 const gridScale = gridToScale(grid);
 
 const spec = {
